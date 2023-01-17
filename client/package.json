@@ -11,6 +11,10 @@
   "dependencies": {
     "@headlessui/react": "^1.7.7",
     "@heroicons/react": "^2.0.13",
+<<<<<<< HEAD
+=======
+    "axios": "^1.2.2",
+>>>>>>> 33db3cb0d9fe1c7aa5daa6aecd56ff33362b2a0d
     "framer-motion": "^8.4.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

@@ -13,7 +13,6 @@ router.use(session({
  }))
 
 
-
 //Database to Connect with Knex
 const db = knex({
     client: 'pg',
@@ -42,15 +41,10 @@ const db = knex({
 // })
 
 
-
 router.get('/', (req, res) => {
     res.send("Welocome Back to Express Revision.")
 })
 
-const checkIfExists = function(email) {
-   let exists = false;
-  
-}
 
 router.post('/signup', function(req, res){
    const { fullname, email, password } = req.body;

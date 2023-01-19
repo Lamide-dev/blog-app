@@ -21,11 +21,11 @@ const SignIn = () => {
               Sign in to your account
             </h2>
             <p className="mt-2 text-center text-sm text-gray-600">
-              Don't have an Account? {' '}
+              Don't have an Account? {' '} 
               <Link to="/signup" className="font-medium text-yellow-600 hover:text-yellow-500">
                 Sign Up
               </Link>
-            </p>
+            </p>  
           </div>
           <form className="mt-8 space-y-6" onSubmit={e => { e.preventDefault(); handleSignIn({email, password})}}>
             <input type="hidden" name="remember" defaultValue="true" />

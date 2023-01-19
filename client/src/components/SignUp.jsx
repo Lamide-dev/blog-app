@@ -3,6 +3,7 @@ import { LockClosedIcon } from '@heroicons/react/20/solid';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
+
 const SignUp = () => {
   const { handleSignUp, isSignedIn, isLoading } = useContext(AuthContext);
   const [fullname, setFullname] = useState('');
@@ -33,7 +34,7 @@ const SignUp = () => {
             <input type="hidden" name="remember" defaultValue="true" />
             <div className="-space-y-px rounded-md shadow-sm">
               <div>
-                <label htmlFor="email-address" className="sr-only">
+                <label htmlFor="full-name" className="sr-only">
                   Full Name
                 </label>
                 <input

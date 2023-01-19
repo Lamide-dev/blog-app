@@ -3,7 +3,8 @@ const session = require('express-session')
 const router = express.Router();
 const bcrypt = require('bcrypt-nodejs');
 const knex = require('knex');
-require('dotenv').config()
+const db = require('./db/conn');
+require('dotenv').config();
 // console.log(process.env.SECRET_KEY);
 router.use(session({
    secret: process.env.SECRET,
@@ -12,18 +13,8 @@ router.use(session({
    cookie: { secure: true }
  }))
 
-
 //Database to Connect with Knex
-const db = knex({
-    client: 'pg',
-    connection: {
-      host : process.env.DB_HOST,
-      port : process.env.DB_PORT,
-      user : process.env.DB_USER,
-      password: process.env.DB_PASS,
-      database : process.env.DB
-    }
-  });
+
 
 // //Profile Route
 // router.get('/profile/:id', (req, res) => {
@@ -45,6 +36,19 @@ router.get('/', (req, res) => {
     res.send("Welocome Back to Express Revision.")
 })
 
+router.get('/user/:id', (req, res) => {
+   const id = parseInt(req.params.id)
+ 
+      db.select('*')
+       .from('users')
+       .where({
+           user_id: id
+       })
+       .then(users => {
+           console.log(users[0]);
+           res.json({ message: "success", user: users[0]});
+       })
+ })
 
 router.post('/signup', function(req, res){
    const { fullname, email, password } = req.body;
@@ -53,11 +57,11 @@ router.post('/signup', function(req, res){
       console.log("Invalid Details!!")
       res.status(400).json("Invalid details!");
   } else{
-      let exists = false
+      let exists = false;
       db.select('*').from('users').then(users => {
          users.forEach((user) => {
             if(user.email === email){
-                 exists = true
+                 exists = true;
             }
          });
 

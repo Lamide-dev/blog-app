@@ -1,4 +1,4 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -7,7 +7,9 @@ export const AuthContext = createContext();
 const AuthContextProvider = ({children}) => {
     const navigate = useNavigate();
     const [authProfile, setAuthProfile] = useState({});
+    const [ isLoggedIn, setIsLoggedIn ] = useState(false);
     const [isLoading, setIsLoading ] = useState(false);
+    const [blogs, setBlogs] = useState([]);
 
     
     const handleSignIn = (userProfile) => {
@@ -22,31 +24,62 @@ const AuthContextProvider = ({children}) => {
         console.log(res);
         if (res.status === 200){
           setAuthProfile(res.data.user);
+          localStorage.setItem('user_id', res.data.user.user_id);
           navigate('/');
         }
       })
       .catch(function (err) {
         setIsLoading(false);
+        if (err?.code === "ERR_NETWORK") {
+          alert(err?.message)
+        }
         console.log(err);
-        alert("Oops!, There was An error Logging in to your Account, Please Try Again.")
-      });
-    }
-
+        err?.response ? (
+          alert(err?.response?.status + ", " + err?.response?.statusText + " " + err?.response?.data?.message)
+        ) : ""
+      })
+}
     const handleSignOut = () => {
       axios.post('http://localhost:3000/signout')
-      .then(function (res) {
+      .then(async function (res) {
         console.log(res);
         if (res.status === 200){
+          await localStorage.setItem('user_id', 'null');
           setAuthProfile(res.data.user);
-          navigate('/');
+          navigate('/signin');
         }
       })
       .catch(function (err) {
+        if (err?.code === "ERR_NETWORK") {
+          alert(err?.message)
+        }
         setIsLoading(false);
         console.log(err);
         alert(err.response.status + ", " + err.response.statusText + " " + err.response.data.message);
       });
-      navigate('/signin');
+    }
+
+    const handleCreateBlog = (det) => {
+      const { email, fullname, img, content, likes } = det;
+      
+      axios.post('http://localhost:3000/createblog', {
+        email,
+        fullname,
+        img,
+        content,
+        likes
+      })
+      .then(res => {
+        if(res.status = 200){
+          navigate('/');
+        }
+      }).catch(err => {
+        if (err?.code === "ERR_NETWORK") {
+          alert(err?.message)
+        }
+        console.log(err);
+        alert(err.response.status + ", " + err.response.statusText + " " + err.response.data.message);
+      })
     }
 
     const handleSignUp = (userProfile) => {
@@ -63,6 +96,7 @@ const AuthContextProvider = ({children}) => {
             console.log(res);
             if (res.status === 200){
               setAuthProfile(res.data.user);
+              localStorage.setItem('user_id', res.data.user.user_id);
               navigate('/');
             }
             if (res.status >= 500) {
@@ -76,13 +110,46 @@ const AuthContextProvider = ({children}) => {
           })
           .catch(function (err) {
             setIsLoading(false);
+            if (err?.code === "ERR_NETWORK") {
+              alert(err?.message)
+            }
             console.log(err);
             alert(err.response.status + ", " + err.response.statusText + " " + err.response.data.message);
           });
     }
 
+    const getBlogs = () => {
+      axios.get('http://localhost:3000/getblogs')
+      .then(res => {
+        if(res.status === 200){
+          setBlogs(res.data.blogs);
+        }
+      })
+      .catch(err => {
+        console.log(err);
+        alert(err.response.status + ", " + err.response.statusText + " " + err.response.data.message);
+      })
+    }
+
+    useEffect(() => {
+      const user_id = localStorage.getItem("user_id");
+      console.log(user_id);
+      if (user_id !== 'null') {
+        setIsLoggedIn(true);
+        axios.get(`http://localhost:3000/user/${user_id}`)
+        .then((res) => {
+          console.log(res);
+          if (res.status = 200){
+            setAuthProfile(res.data.user);
+          }
+        })
+      } else {
+        setIsLoggedIn(false);
+      }
+    }, [localStorage.getItem("user_id")]);
+
     return (
-        <AuthContext.Provider value={{isLoading, handleSignIn, handleSignOut, handleSignUp, authProfile}}>
+        <AuthContext.Provider value={{isLoading, handleSignIn, handleSignOut, handleSignUp, handleCreateBlog, authProfile, isLoggedIn, blogs}}>
             {children}
         </AuthContext.Provider>
     )
